@@ -154,24 +154,14 @@ var testObj = [
     KEYWORD: "date.order_date",
     VIETNAMESE: "Ngày đặt hàng",
     ENGLISH: "Order date",
-  },
-  {
-    KEYWORD: "date",
-    VIETNAMESE: "Ngày đặt hàng",
-    ENGLISH: "Order date",
-  },
-  {
-    KEYWORD: "date.order",
-    VIETNAMESE: "Ngày đặt",
-    ENGLISH: "Order",
-  },
+  }
 ];
 
 var hashMap = {};
 var vnTrans = {};
 var enTrans = {};
 
-tempKeyWord.forEach((keyword) => {
+keywordData.forEach((keyword) => {
   if (!keyword) {
     return;
   }
@@ -203,13 +193,13 @@ for (const [key, keywords] of Object.entries(hashMap)) {
       continue
     } 
 
-    vnTrans[key] = {
-      subKey:  keywords[0].VIETNAMESE
-    }
+    let valueVN = {}
+    valueVN[subKey] = keywords[0].VIETNAMESE
+    vnTrans[key] = valueVN
    
-    enTrans[key] = {
-      subKey:  keywords[0].VIETNAMESE
-    }
+    let valueEN = {}
+    valueEN[subKey] = keywords[0].ENGLISH
+    enTrans[key] = valueEN
 
     continue
   }
@@ -227,7 +217,7 @@ for (const [key, keywords] of Object.entries(hashMap)) {
 
     var subKey = keyword.KEYWORD.split(".")[1];
     if (subKey == "" || subKey == undefined) {
-      subKey = "default";
+      subKey = "alpha";
     }
 
     vnSubKey[subKey] = keyword.VIETNAMESE;
@@ -237,6 +227,8 @@ for (const [key, keywords] of Object.entries(hashMap)) {
   vnTrans[key] = vnSubKey;
   enTrans[key] = enSubKey;
 }
+
+console.log(vnTrans)
 
 fs.writeFileSync("vi.json",JSON.stringify(vnTrans))
 fs.writeFileSync("en.json",JSON.stringify(enTrans))
