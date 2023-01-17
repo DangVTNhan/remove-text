@@ -217,7 +217,7 @@ for (const [key, keywords] of Object.entries(hashMap)) {
 
     var subKey = keyword.KEYWORD.split(".")[1];
     if (subKey == "" || subKey == undefined) {
-      subKey = "alpha";
+      subKey = "default";
     }
 
     vnSubKey[subKey] = keyword.VIETNAMESE;
