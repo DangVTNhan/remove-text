@@ -14,7 +14,6 @@ const file = reader.readFile(filePath);
 let data = [];
 
 const sheet = file.Sheets[sheetname];
-
 const temp = reader.utils.sheet_to_json(sheet);
 temp.forEach((res) => {
   data.push(res);
@@ -45,46 +44,46 @@ const options = {
   to: [],
 };
 
-(async () => {
-  let abc = [];
-  let singleWord = []
-  let withoutKeyWord = []
-  try {
-    data.forEach((res) => {
-      if (!res.ORIGINAL || res.AUTO == "x") {
-        return;
-      }
-      var wordCount = res.ORIGINAL.match(/(\w+)/g).length;
-      if (wordCount == 1) {
-        singleWord.push(res)
-        return
-      }
-      abc.push(res);
-    });
+// (async () => {
+//   let abc = [];
+//   let singleWord = []
+//   let withoutKeyWord = []
+//   try {
+//     data.forEach((res) => {
+//       if (!res.ORIGINAL || res.AUTO == "x") {
+//         return;
+//       }
+//       var wordCount = res.ORIGINAL.match(/(\w+)/g).length;
+//       if (wordCount == 1) {
+//         singleWord.push(res)
+//         return
+//       }
+//       abc.push(res);
+//     });
 
-    console.log(singleWord)
-    abc.sort(function (a, b) {
-      // ASC  -> a.length - b.length
-      // DESC -> b.length - a.length
-      return String(b.ORIGINAL).length - String(a.ORIGINAL).length;
-    });
-    abc.forEach((res) => {
-      res.ORIGINAL.trim();
-      res.ORIGINAL = escapeRegExp(res.ORIGINAL);
-      var txt = new RegExp("(.*)(" + res.ORIGINAL + ")(.*)", "gm");
-      options.from.push(txt);
-      // If missing keyword will translate to fix me
-      if (res.KEYWORD == "" || res.KEYWORD == undefined) {
-        withoutKeyWord.push(res.ORIGINAL)
-        res.KEYWORD = "Fix me";
-      }
-      options.to.push(`$1t(${res.KEYWORD})$3`);
-    });
-    const results = await replace(options);
-  } catch (err) {
-    console.error("Error occurred:", err);
-  }
-})();
+//     console.log(singleWord)
+//     abc.sort(function (a, b) {
+//       // ASC  -> a.length - b.length
+//       // DESC -> b.length - a.length
+//       return String(b.ORIGINAL).length - String(a.ORIGINAL).length;
+//     });
+//     abc.forEach((res) => {
+//       res.ORIGINAL.trim();
+//       res.ORIGINAL = escapeRegExp(res.ORIGINAL);
+//       var txt = new RegExp("(.*)(" + res.ORIGINAL + ")(.*)", "gm");
+//       options.from.push(txt);
+//       // If missing keyword will translate to fix me
+//       if (res.KEYWORD == "" || res.KEYWORD == undefined) {
+//         withoutKeyWord.push(res.ORIGINAL)
+//         res.KEYWORD = "Fix me";
+//       }
+//       options.to.push(`$1t(${res.KEYWORD})$3`);
+//     });
+//     const results = await replace(options);
+//   } catch (err) {
+//     console.error("Error occurred:", err);
+//   }
+// })();
 
 function escapeRegExp(text) {
   return String(text).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
@@ -128,3 +127,117 @@ function escapeRegExp(text) {
 //     reader.writeFile(file, filePath);
 //   }
 // })();
+
+var keywordSheetName = "Master_WMS";
+let keywordData = [];
+const keywordSheet = file.Sheets[keywordSheetName];
+const tempKeyWord = reader.utils.sheet_to_json(keywordSheet);
+tempKeyWord.forEach((res) => {
+  keywordData.push(res);
+});
+
+var jsonObj = {};
+var hashMap = {};
+
+var testObj = [
+  {
+    KEYWORD: "same_day_order",
+    VIETNAMESE: "Đơn hàng Same Day",
+    ENGLISH: "Same Day order",
+  },
+  {
+    KEYWORD: "same_day_order.transfer",
+    VIETNAMESE: "Vui lòng đưa về khu vực Same Day",
+    ENGLISH: "Please transfer to Same Day area",
+  },
+  {
+    KEYWORD: "date.order_date",
+    VIETNAMESE: "Ngày đặt hàng",
+    ENGLISH: "Order date",
+  },
+  {
+    KEYWORD: "date",
+    VIETNAMESE: "Ngày đặt hàng",
+    ENGLISH: "Order date",
+  },
+  {
+    KEYWORD: "date.order",
+    VIETNAMESE: "Ngày đặt",
+    ENGLISH: "Order",
+  },
+];
+
+var hashMap = {};
+var vnTrans = {};
+var enTrans = {};
+
+tempKeyWord.forEach((keyword) => {
+  if (!keyword) {
+    return;
+  }
+
+  var group = keyword.KEYWORD.split(".")[0];
+
+  if (!hashMap.hasOwnProperty(group)) {
+    hashMap[group] = [keyword];
+    return;
+  }
+
+  hashMap[group].push(keyword);
+});
+
+for (const [key, keywords] of Object.entries(hashMap)) {
+  if (keywords.length === 1) {
+    if (!keywords[0].VIETNAMESE || keywords[0].VIETNAMESE == "") {
+      keywords[0].VIETNAMESE = "Fix me";
+    }
+
+    if (!keywords[0].ENGLISH || keywords[0].ENGLISH == "") {
+      keywords[0].VIETNAMESE = "Fix me";
+    }
+
+    let subKey = keywords[0].KEYWORD.split(".")[1];
+    if(subKey == "" || subKey == undefined){
+      vnTrans[key] = keywords[0].VIETNAMESE;
+      enTrans[key] = keywords[0].ENGLISH;
+      continue
+    } 
+
+    vnTrans[key] = {
+      subKey:  keywords[0].VIETNAMESE
+    }
+   
+    enTrans[key] = {
+      subKey:  keywords[0].VIETNAMESE
+    }
+
+    continue
+  }
+
+  var vnSubKey = {};
+  var enSubKey = {};
+  keywords.forEach((keyword) => {
+    if (!keyword.VIETNAMESE || keyword.VIETNAMESE == "") {
+      keyword.VIETNAMESE = "Fix me";
+    }
+
+    if (!keyword.ENGLISH || keyword.ENGLISH == "") {
+      keyword.VIETNAMESE = "Fix me";
+    }
+
+    var subKey = keyword.KEYWORD.split(".")[1];
+    if (subKey == "" || subKey == undefined) {
+      subKey = "default";
+    }
+
+    vnSubKey[subKey] = keyword.VIETNAMESE;
+    enSubKey[subKey] = keyword.ENGLISH;
+  });
+
+  vnTrans[key] = vnSubKey;
+  enTrans[key] = enSubKey;
+}
+
+fs.writeFileSync("vi.json",JSON.stringify(vnTrans))
+fs.writeFileSync("en.json",JSON.stringify(enTrans))
+
