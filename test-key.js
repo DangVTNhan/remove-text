@@ -1,11 +1,3 @@
-Xã
+t('List of routes')
 
-Xã
-
-Xã
-
-Xã
-
-Xã
-
-Xã
+t('Add transporting route successfully')
