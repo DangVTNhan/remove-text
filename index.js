@@ -21,10 +21,16 @@ temp.forEach((res) => {
 
 // TODO: change here to translate real data
 const paths = [
-  "../logistic/components/**/*.{tsx,js,ts,jsx}",
-  "../logistic/containers/**/*.{tsx,js,ts,jsx}",
-  "../logistic/pages/**/*.{tsx,js,ts,jsx}",
-  "../logistic/providers/**/*.{tsx,js,ts,jsx}",
+  // LOGISTIC
+  // "../logistic/pages/logistic/area/reconcile.tsx",
+  // "../logistic/pages/logistic/area/hub/**/limit.tsx",
+  // `../logistic/pages/logistic/area/hub/**/reconcile/**/*.{tsx,js,ts,jsx}`,
+  // "../logistic/pages/logistic/route/**/*.{tsx,js,ts,jsx}",
+  // "../logistic/pages/logistic/area/hub/**/inbound/**/*.{tsx,js,ts,jsx}"
+
+
+  // WMS
+  "../internal-wms/pages/wms/index.js"
 ];
 
 // TODO: create a folder name test-replace to test in repo change here to test
@@ -36,61 +42,60 @@ const ignore = ["../logistic/components/constants.{tsx,js,ts,jsx}"];
 
 const options = {
   // TODO: Comment test and uncomment path to translate real data
-  files: testPaths,
-  // files: paths,
+  // files: testPaths,
+  files: paths,
   ignore,
   countMatches: true,
   from: [],
   to: [],
 };
 
-// (async () => {
-//   let abc = [];
-//   let singleWord = [];
-//   let withoutKeyWord = [];
-//   try {
-//     data.forEach((res) => {
-//       if (!res.ORIGINAL || res.AUTO == "x") {
-//         return;
-//       }
-//       var wordCount = res.ORIGINAL.match(/(\w+)/g).length;
-//       if (wordCount == 1) {
-//         singleWord.push(res);
-//         return;
-//       }
-//       abc.push(res);
-//     });
+(async () => {
+  let abc = [];
+  let singleWord = [];
+  try {
+    data.forEach((res) => {
+      if (!res.ORIGINAL || res.AUTO == "x") {
+        return;
+      }
+      var wordCount = res.ORIGINAL.match(/(\w+)/g).length;
+      if (wordCount == 1) {
+        singleWord.push(res);
+        return;
+      }
+      abc.push(res);
+    });
 
-//     abc.sort(function (a, b) {
-//       // ASC  -> a.length - b.length
-//       // DESC -> b.length - a.length
-//       return String(b.ORIGINAL).length - String(a.ORIGINAL).length;
-//     });
-//     abc.forEach((res) => {
-//       res.ORIGINAL.trim();
-//       res.ORIGINAL = escapeRegExp(res.ORIGINAL);
-//       var txt = new RegExp("(.*)(" + res.ORIGINAL + ")(.*)", "gm");
-//       options.from.push(txt);
-//       // If missing keyword will translate to fix me
-//       if (res.ENGLISH == "" || res.ENGLISH == undefined) {
-//         res.KEYWORD = "Fix me";
-//       }else {
-//         res.KEYWORD = "\"" + res.ENGLISH + "\"";
-//       }
-//       options.to.push(`$1t(${res.KEYWORD})$3`);
-//     });
-//     const results = await replace(options);
-//   } catch (err) {
-//     console.error("Error occurred:", err);
-//   }
-// })();
+    abc.sort(function (a, b) {
+      // ASC  -> a.length - b.length
+      // DESC -> b.length - a.length
+      return String(b.ORIGINAL).length - String(a.ORIGINAL).length;
+    });
+    abc.forEach((res) => {
+      res.ORIGINAL.trim();
+      res.ORIGINAL = escapeRegExp(res.ORIGINAL);
+      var txt = new RegExp("(.*)(" + res.ORIGINAL + ")(.*)", "gm");
+      options.from.push(txt);
+      // If missing keyword will translate to fix me
+      if (res.KEYWORD == "" || res.KEYWORD == undefined) {
+        res.KEYWORD = "Fix me";
+      }else {
+        res.KEYWORD = "\'" + res.KEYWORD + "\'";
+      }
+      options.to.push(`$1t(${res.KEYWORD})$3`);
+    });
+    const results = await replace(options);
+  } catch (err) {
+    console.error("Error occurred:", err);
+  }
+})();
 
 function escapeRegExp(text) {
   return String(text).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 }
 
-// const containsVneseAt = [];
-// let at = {};
+const containsVneseAt = [];
+let at = {};
 
 // (async () => {
 //   let needReadPaths = [];
@@ -121,138 +126,57 @@ function escapeRegExp(text) {
 //   });
 
 //   console.log(containsVneseAt);
-//   if (containsVneseAt.length > 0) {
-//     const ws = reader.utils.json_to_sheet(containsVneseAt);
-//     reader.utils.book_append_sheet(file, ws, sheetname + "_detectVnese");
-//     reader.writeFile(file, filePath);
-//   }
+  // if (containsVneseAt.length > 0) {
+  //   const ws = reader.utils.json_to_sheet(containsVneseAt);
+  //   reader.utils.book_append_sheet(file, ws, sheetname + "_detectVnese");
+  //   reader.writeFile(file, filePath);
+  // }
 // })();
 
-var keywordSheetName = "LOGISTIC";
-let keywordData = [];
-const keywordSheet = file.Sheets[keywordSheetName];
-const tempKeyWord = reader.utils.sheet_to_json(keywordSheet);
-tempKeyWord.forEach((res) => {
-  keywordData.push(res);
-});
+// var keywordSheetName = "wms-app";
+// let keywordData = [];
+// const keywordSheet = file.Sheets[keywordSheetName];
+// const tempKeyWord = reader.utils.sheet_to_json(keywordSheet);
+// tempKeyWord.forEach((res) => {
+//   keywordData.push(res);
+// });
 
-var jsonObj = {};
-var hashMap = {};
+// var hashMap = {};
 
-var testObj = [
-  {
-    VIETNAMESE: "Đơn hàng Same Day",
-    ENGLISH: "Same Day order",
-  },
-  {
-    VIETNAMESE: "Vui lòng đưa về khu vực Same Day",
-    ENGLISH: "Please transfer to Same Day area",
-  },
-  {
-    VIETNAMESE: "Ngày đặt hàng",
-    ENGLISH: "Order date",
-  },
-];
-
-var hashMap = {};
-var vnTrans = {};
-var enTrans = {};
-
-keywordData.forEach((keyword) => {
-  if (!keyword) {
-    return;
-  }
-
-  if (keyword.ENGLISH == "" || keyword.ENGLISH == undefined){
-    return
-  }
-  hashMap[keyword.ENGLISH] = keyword
-});
-
-for (const [key, keyword] of Object.entries(hashMap)) {
-
-  if (!keyword.VIETNAMESE || keyword.VIETNAMESE == ""){
-    vnTrans[key] = "Fix me"
-  } else {
-    vnTrans[key] = keyword.VIETNAMESE
-  }
-
-  if (!keyword.ENGLISH || keyword.ENGLISH == "") {
-    enTrans[key] = "Fix me"
-  } else {
-    enTrans[key] = keyword.ENGLISH
-  }
-}
-
-
-
+// var hashMap = {};
+// var vnTrans = {};
+// var enTrans = {};
 
 // keywordData.forEach((keyword) => {
 //   if (!keyword) {
 //     return;
 //   }
+//   console.log(keyword)
+//   // if (keyword.ENGLISH == "" || keyword.ENGLISH == undefined){
+//   //   return
+//   // }
 
-//   var group = keyword.KEYWORD.split(".")[0];
-
-//   if (!hashMap.hasOwnProperty(group)) {
-//     hashMap[group] = [keyword];
-//     return;
+//   if (keyword.KEYWORD == "" || keyword.KEYWORD == undefined){
+//     return
 //   }
 
-//   hashMap[group].push(keyword);
+//   hashMap[keyword.KEYWORD] = keyword
 // });
 
-// for (const [key, keywords] of Object.entries(hashMap)) {
-//   if (keywords.length === 1) {
-//     if (!keywords[0].VIETNAMESE || keywords[0].VIETNAMESE == "") {
-//       keywords[0].VIETNAMESE = "Fix me";
-//     }
+// for (const [key, keyword] of Object.entries(hashMap)) {
 
-//     if (!keywords[0].ENGLISH || keywords[0].ENGLISH == "") {
-//       keywords[0].VIETNAMESE = "Fix me";
-//     }
-
-//     let subKey = keywords[0].KEYWORD.split(".")[1];
-//     if (subKey == "" || subKey == undefined) {
-//       vnTrans[key] = keywords[0].VIETNAMESE;
-//       enTrans[key] = keywords[0].ENGLISH;
-//       continue;
-//     }
-
-//     let valueVN = {};
-//     valueVN[subKey] = keywords[0].VIETNAMESE;
-//     vnTrans[key] = valueVN;
-
-//     let valueEN = {};
-//     valueEN[subKey] = keywords[0].ENGLISH;
-//     enTrans[key] = valueEN;
-
-//     continue;
+//   if (!keyword.VIETNAMESE || keyword.VIETNAMESE == ""){
+//     vnTrans[key] = "Fix me"
+//   } else {
+//     vnTrans[key] = keyword.VIETNAMESE
 //   }
 
-//   var vnSubKey = {};
-//   var enSubKey = {};
-//   keywords.forEach((keyword) => {
-//     if (!keyword.VIETNAMESE || keyword.VIETNAMESE == "") {
-//       keyword.VIETNAMESE = "Fix me";
-//     }
-
-//     if (!keyword.ENGLISH || keyword.ENGLISH == "") {
-//       keyword.VIETNAMESE = "Fix me";
-//     }
-
-//     var subKey = keyword.KEYWORD.split(".")[1];
-//     if (subKey == "" || subKey == undefined) {
-//       subKey = "default";
-//     }
-
-//     vnSubKey[subKey] = keyword.VIETNAMESE;
-//     enSubKey[subKey] = keyword.ENGLISH;
-//   });
-
-//   vnTrans[key] = vnSubKey;
-//   enTrans[key] = enSubKey;
+//   if (!keyword.ENGLISH || keyword.ENGLISH == "") {
+//     enTrans[key] = "Fix me"
+//   } else {
+//     enTrans[key] = keyword.ENGLISH
+//   }
 // }
 
-fs.writeFileSync("vi.json", JSON.stringify(vnTrans));
-fs.writeFileSync("en.json", JSON.stringify(enTrans));
+// fs.writeFileSync("vi.json", JSON.stringify(vnTrans));
+// fs.writeFileSync("en.json", JSON.stringify(enTrans));
