@@ -4,7 +4,7 @@ const glob = require("glob");
 var fs = require("fs");
 
 // TODO: Change here to change sheet name
-const sheetname = "LOGISTIC";
+const sheetname = "wms-app";
 // TODO: Change path to excel file to translate here
 const filePath = "./test-keywork.xlsx";
 
@@ -30,7 +30,15 @@ const paths = [
 
 
   // WMS
-  "../internal-wms/pages/wms/index.js"
+  "../internal-wms/pages/wms/index.js",
+  "../internal-wms/pages/wms/**/overview/**/*.js",
+  "../internal-wms/pages/wms/**/orders/**/*.js",
+  "../internal-wms/pages/wms/**/pick/**/*.js",
+  "../internal-wms/pages/wms/**/ticket/**/*.js",
+  "../internal-wms/pages/wms/**/pack/**/*.js",
+  "../internal-wms/pages/wms/**/delivery/**/*.js",
+
+  // "../internal-wms/pages/wms/**/qcapp/**/*.js",
 ];
 
 // TODO: create a folder name test-replace to test in repo change here to test
@@ -50,88 +58,89 @@ const options = {
   to: [],
 };
 
-(async () => {
-  let abc = [];
-  let singleWord = [];
-  try {
-    data.forEach((res) => {
-      if (!res.ORIGINAL || res.AUTO == "x") {
-        return;
-      }
-      var wordCount = res.ORIGINAL.match(/(\w+)/g).length;
-      if (wordCount == 1) {
-        singleWord.push(res);
-        return;
-      }
-      abc.push(res);
-    });
+// (async () => {
+//   let abc = [];
+//   let singleWord = [];
+//   try {
+//     data.forEach((res) => {
+//       if (!res.ORIGINAL || res.AUTO == "x") {
+//         return;
+//       }
+//       var wordCount = res.ORIGINAL.trim().split(/_| /).length;
+//       if (wordCount == 1) {
+//         singleWord.push(res);
+//         return;
+//       }
+//       abc.push(res);
+//     });
 
-    abc.sort(function (a, b) {
-      // ASC  -> a.length - b.length
-      // DESC -> b.length - a.length
-      return String(b.ORIGINAL).length - String(a.ORIGINAL).length;
-    });
-    abc.forEach((res) => {
-      res.ORIGINAL.trim();
-      res.ORIGINAL = escapeRegExp(res.ORIGINAL);
-      var txt = new RegExp("(.*)(" + res.ORIGINAL + ")(.*)", "gm");
-      options.from.push(txt);
-      // If missing keyword will translate to fix me
-      if (res.KEYWORD == "" || res.KEYWORD == undefined) {
-        res.KEYWORD = "Fix me";
-      }else {
-        res.KEYWORD = "\'" + res.KEYWORD + "\'";
-      }
-      options.to.push(`$1t(${res.KEYWORD})$3`);
-    });
-    const results = await replace(options);
-  } catch (err) {
-    console.error("Error occurred:", err);
-  }
-})();
+//     abc.sort(function (a, b) {
+//       // ASC  -> a.length - b.length
+//       // DESC -> b.length - a.length
+//       return String(b.ORIGINAL).length - String(a.ORIGINAL).length;
+//     });
+//     abc.forEach((res) => {
+//       res.ORIGINAL.trim();
+//       res.ORIGINAL = escapeRegExp(res.ORIGINAL);
+//       var txt = new RegExp("(.*)(" + res.ORIGINAL + ")(.*)", "gm");
+//       options.from.push(txt);
+//       // If missing keyword will translate to fix me
+//       if (res.KEYWORD == "" || res.KEYWORD == undefined) {
+//         res.KEYWORD = "Fix me";
+//       }else {
+//         res.KEYWORD = "\"" + res.KEYWORD + "\"";
+//       }
+//       options.to.push(`$1t(${res.KEYWORD})$3`);
+//     });
+//     const results = await replace(options);
+//     console.log(results)
+//   } catch (err) {
+//     console.error("Error occurred:", err);
+//   }
+// })();
 
-function escapeRegExp(text) {
-  return String(text).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-}
+// function escapeRegExp(text) {
+//   return String(text).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+// }
 
 const containsVneseAt = [];
 let at = {};
 
-// (async () => {
-//   let needReadPaths = [];
-//   options.files.map((value) => {
-//     let paths = glob.sync(value);
-//     needReadPaths.push(paths);
-//   });
+(async () => {
+  let needReadPaths = [];
+  options.files.map((value) => {
+    let paths = glob.sync(value);
+    needReadPaths.push(paths);
+  });
 
-//   needReadPaths.map((paths) => {
-//     paths.map((path) => {
-//       let data = fs.readFileSync(path, {
-//         encoding: "utf8",
-//         flag: "r",
-//       });
-//       var allLines = data.split("\n");
-//       let regex =
-//         /[àáãạảăắằẳẵặâấầẩẫậèéẹẻẽêềếểễệđìíĩỉịòóõọỏôốồổỗộơớờởỡợùúũụủưứừửữựỳỵỷỹýÀÁÃẠẢĂẮẰẲẴẶÂẤẦẨẪẬÈÉẸẺẼÊỀẾỂỄỆĐÌÍĨỈỊÒÓÕỌỎÔỐỒỔỖỘƠỚỜỞỠỢÙÚŨỤỦƯỨỪỬỮỰỲỴỶỸÝ]/g;
-//       for (var i = 0; i < allLines.length; i++) {
-//         if (allLines[i].match(regex)) {
-//           at = {
-//             Path: path,
-//             AtRow: i + 1,
-//           };
-//           containsVneseAt.push(at);
-//         }
-//       }
-//     });
-//   });
+  needReadPaths.map((paths) => {
+    paths.map((path) => {
+      let data = fs.readFileSync(path, {
+        encoding: "utf8",
+        flag: "r",
+      });
+      var allLines = data.split("\n");
+      let regex =
+        /[àáãạảăắằẳẵặâấầẩẫậèéẹẻẽêềếểễệđìíĩỉịòóõọỏôốồổỗộơớờởỡợùúũụủưứừửữựỳỵỷỹýÀÁÃẠẢĂẮẰẲẴẶÂẤẦẨẪẬÈÉẸẺẼÊỀẾỂỄỆĐÌÍĨỈỊÒÓÕỌỎÔỐỒỔỖỘƠỚỜỞỠỢÙÚŨỤỦƯỨỪỬỮỰỲỴỶỸÝ]/g;
+      for (var i = 0; i < allLines.length; i++) {
+        if (allLines[i].match(regex)) {
+          at = {
+            Path: path,
+            AtRow: i + 1,
+          };
+          containsVneseAt.push(at);
+        }
+      }
+    });
+  });
 
-//   console.log(containsVneseAt);
+  console.log(containsVneseAt);
   // if (containsVneseAt.length > 0) {
   //   const ws = reader.utils.json_to_sheet(containsVneseAt);
   //   reader.utils.book_append_sheet(file, ws, sheetname + "_detectVnese");
   //   reader.writeFile(file, filePath);
   // }
-// })();
+})();
 
 // var keywordSheetName = "wms-app";
 // let keywordData = [];
