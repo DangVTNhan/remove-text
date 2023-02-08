@@ -1,3 +1,10 @@
-t('List of routes')
+t('fail_to_complete_receipt_session')
 
-t('Add transporting route successfully')
+t('order_date')
+
+t('order_date')
+{t('order_date')}
+<>t('order_date')<>
+{t('order_date')}
+
+<> t('fail_to_complete_receipt_session') <>
