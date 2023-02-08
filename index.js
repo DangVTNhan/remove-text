@@ -221,11 +221,12 @@ for (let [key, value] of Object.entries(en)) {
     key = key.replace(/\{value\}/g, "");
   }
 
-  key = key.replace(/[^a-zA-Z0-9 _]/g, "");
+  key = key.replace(/[^a-zA-Z0-9 _/]/g, "");
   key = key.trim();
   key = key.replace(/[ ]/g, "_");
   key = key.replace(/\_\_/g, "_");
   key = key.replace(/\_\_/g, "_");
+  key = key.replace(/\//, "_")
   newEn[key] = value;
 }
 
@@ -248,11 +249,13 @@ for (let [key, value] of Object.entries(vn)) {
     key = key.replace(/\{value\}/g, "");
   }
 
-  key = key.replace(/[^a-zA-Z0-9 _]/g, "");
+  key = key.replace(/[^a-zA-Z0-9 _/]/g, "");
   key = key.trim();
   key = key.replace(/[ ]/g, "_");
   key = key.replace(/\_\_/g, "_");
   key = key.replace(/\_\_/g, "_");
+  key = key.replace(/\//, "_")
+
   newVn[key] = value;
 
   let keyObj = { oldKey: oldKeyClone, newKey: key };
@@ -284,7 +287,6 @@ mapKey.forEach((key) => {
   options.to.push(`$1t(${newKeyFormat})$3`);
 });
 
-console.log(options)
 
 const results = replace.sync(options);
 console.log(results);

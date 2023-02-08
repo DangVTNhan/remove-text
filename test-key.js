@@ -1,10 +1,14 @@
-t('fail_to_complete_receipt_session')
+t('missing_packages')
 
-t('order_date')
 
-t('order_date')
-{t('order_date')}
-<>t('order_date')<>
-{t('order_date')}
+t('missing_packages')
 
-<> t('fail_to_complete_receipt_session') <>
+t('code_is_invalid')
+
+t('missing_packages')
+
+
+t('Scan successfully {{value}} packages', {
+    value: dataScanned.find((item) => item.so === value)
+      ?.scannedQuantity
+  })
